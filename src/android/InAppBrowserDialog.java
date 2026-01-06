@@ -26,6 +26,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.Window;
 
 /**
  * Created by Oliver on 22/11/2013.
@@ -86,18 +89,20 @@ public class InAppBrowserDialog extends Dialog {
      * フルスクリーン処理
      */
     private void enableImmersiveMode() {
-        // ナビゲーションバーとステータスバーを隠す
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                // ユーザーがバーを一時的に表示しても数秒後に自動で隠れる
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        // ステータスバー（上部の時計や通知アイコン）を非表示にする
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        // ナビゲーションバー（下部の戻る・ホーム・タスクボタン）を非表示にする
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        // コンテンツをステータスバー領域まで広げてレイアウトできるようにする
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // コンテンツをナビゲーションバー領域まで広げてレイアウトできるようにする
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
+        Window window = getWindow();
+        if (window == null)
+            return;
+        // ステータスバーとナビゲーションバーの領域まで描画
+        window.setDecorFitsSystemWindows(false);
+        WindowInsetsController controller = window.getInsetsController();
+        if (controller == null)
+            return;
+        // ステータスバーとナビゲーションバーを隠す
+        controller.hide(
+                WindowInsets.Type.statusBars()
+                        | WindowInsets.Type.navigationBars());
+        // ユーザーがバーを一時的に表示しても数秒後に自動で隠れる
+        controller.setSystemBarsBehavior(
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 }
